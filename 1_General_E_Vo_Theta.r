@@ -148,7 +148,8 @@ Angulo_transmision <- function(theta, Px, Py) {
 CoeficienteKx <- function(theta, E, Vo) {
   Ke1 <- (E / (hbar * vF))
   Ke2 <- ((E - Vo) / (hbar * vF))
-  K_x <- Ke1 * cos(theta)
+  #K_x <- Ke1 * cos(theta)
+  K_x <- mysqrt(Ke1**2 - (Ke1 * sin(theta))**2)
   return(K_x)
 }
 
@@ -174,7 +175,6 @@ Coeficiente_Transmision <- function(Posiciones, theta, E, Vo){
   #print(Kx)
   #print(Qx)
 
-  
   phi <- Angulo_transmision(theta, Qx, Ky)
 
   A <- matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2)
@@ -222,3 +222,23 @@ data_frame <- data.frame(
 )
 
 write.csv(data_frame, "./TvsX.csv", row.names=TRUE)
+
+Energias <- seq(10, 800, length = 2000)
+Y2 <- c()
+
+for (E in Energias){
+  T <- Coeficiente_Transmision(X, pi/4, E, 200)
+  Y2 <- append(Y2, T, length(Y2))
+}
+
+png("CoeficienteVSEnergia.png")
+plot(Energias, type='l', Y2, main = "Coeficiente de transmisión", xlab = "E", ylab = "T",ylim=c(-0.2,1))
+dev.off()
+
+
+Energias_T <- data.frame(
+  "Energías" = Energias,
+  "Coeficiente de Transmisión" = Y2
+)
+
+write.csv(Energias_T, "./TvsE.csv", row.names=TRUE)
